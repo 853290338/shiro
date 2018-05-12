@@ -11,8 +11,10 @@ import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ByteSource;
 
 /**
  * 自定义realm
@@ -25,7 +27,8 @@ public class CustomRealm extends AuthorizingRealm {
   Map<String, String> map = new HashMap<>();
 
   {
-    map.put("dengpeng", "123456");
+    map.put("dengpeng", "bf984d7a45678c0240c2fde56bae85ed");
+    super.setName("realmName");
   }
 
   /**
@@ -65,15 +68,20 @@ public class CustomRealm extends AuthorizingRealm {
 
     UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
     String username = token.getUsername();
-    String password = String.valueOf(token.getPassword());
+    String password = map.get(username);
 
-    if (map.get(username) == null) {
-      return null;
-    }
-    if (!map.get(username).equals(password)) {
+    if (password == null) {
       return null;
     }
 
-    return new SimpleAuthenticationInfo(username, password, "realmName");
+    SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(username, password, ByteSource.Util.bytes("dengpeng"),
+        "realmName");
+
+    return info;
+  }
+
+  public static void main(String[] args) {
+    Md5Hash md5Hash = new Md5Hash("123456", "dengpeng");
+    System.out.println(md5Hash);
   }
 }

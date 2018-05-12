@@ -3,6 +3,7 @@ package com.shiro;
 import com.shiro.realm.CustomRealm;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.subject.Subject;
 import org.junit.Test;
@@ -23,6 +24,11 @@ public class CustomRealmTest {
     //构建securitymanager环境
     DefaultSecurityManager securityManager = new DefaultSecurityManager();
     securityManager.setRealm(realm);
+
+    HashedCredentialsMatcher matcher = new HashedCredentialsMatcher();
+    matcher.setHashAlgorithmName("md5");
+    matcher.setHashIterations(1);
+    realm.setCredentialsMatcher(matcher);
     //主题提交认证
     SecurityUtils.setSecurityManager(securityManager);
     Subject subject = SecurityUtils.getSubject();
@@ -32,9 +38,9 @@ public class CustomRealmTest {
 
     System.out.println(subject.isAuthenticated());
 
-    subject.checkRoles("admin");
-
-    subject.checkPermission("user:add");
+//    subject.checkRoles("admin");
+//
+//    subject.checkPermission("user:add");
 
   }
 }
