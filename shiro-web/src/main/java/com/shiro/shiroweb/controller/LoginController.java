@@ -28,6 +28,10 @@ public class LoginController {
       return "faile";
     }
 
+    if (!subject.hasRole("admin1")) {
+      return "没有权限";
+    }
+
     return "success";
   }
 

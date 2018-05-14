@@ -1,9 +1,11 @@
 package com.shiro.shiroweb.realm;
 
-import java.util.HashMap;
+import com.shiro.shiroweb.dao.UserDao;
+import com.shiro.shiroweb.entity.User;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -24,12 +26,15 @@ import org.apache.shiro.util.ByteSource;
  **/
 public class CustomRealm extends AuthorizingRealm {
 
-  Map<String, String> map = new HashMap<>();
+ /* Map<String, String> map = new HashMap<>();
 
   {
     map.put("dengpeng", "bf984d7a45678c0240c2fde56bae85ed");
     super.setName("realmName");
-  }
+  }*/
+
+  @Resource
+  private UserDao dao;
 
   /**
    * 角色授权
@@ -39,7 +44,7 @@ public class CustomRealm extends AuthorizingRealm {
     String username = (String) principalCollection.getPrimaryPrincipal();
 
     Set<String> roles = getRolesByName(username);
-    Set<String> promission = getPromissionByName(username);
+    Set<String> promission = getPromissionByName(roles);
 
     SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
     info.setRoles(roles);
@@ -47,15 +52,26 @@ public class CustomRealm extends AuthorizingRealm {
     return info;
   }
 
-  private Set<String> getPromissionByName(String username) {
+  private Set<String> getPromissionByName(Set<String> roles) {
+    /**
+     * Set<String> set = new HashSet<>();
+     *     set.add("user:add");
+     */
     Set<String> set = new HashSet<>();
-    set.add("user:add");
+    for (String role : roles) {
+      List<String> list = dao.selectPermission(role);
+      set.addAll(list);
+    }
     return set;
   }
 
   private Set<String> getRolesByName(String username) {
-    Set<String> set = new HashSet<>();
-    set.add("admin");
+    /**
+     *  Set<String> set = new HashSet<>();
+     *     set.add("admin");
+     */
+    List<String> list = dao.selectRoleByUserName(username);
+    Set<String> set = new HashSet<>(list);
     return set;
   }
 
@@ -68,13 +84,14 @@ public class CustomRealm extends AuthorizingRealm {
 
     UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
     String username = token.getUsername();
-    String password = map.get(username);
+    User user = dao.selectByUserName(username);
 
-    if (password == null) {
+    if (user == null || user.getPassword() == null) {
       return null;
     }
 
-    SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(username, password, ByteSource.Util.bytes("dengpeng"),
+    SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(username, user.getPassword(),
+        ByteSource.Util.bytes(username),
         "realmName");
 
     return info;
