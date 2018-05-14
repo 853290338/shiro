@@ -1,12 +1,15 @@
 package com.shiro.shiroweb.config;
 
 import com.shiro.shiroweb.realm.CustomRealm;
+import com.shiro.shiroweb.session.CustomSessionManager;
+import com.shiro.shiroweb.session.SessionDao;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.DefaultSecurityManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.realm.Realm;
+import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
@@ -45,6 +48,7 @@ public class ShiroConfig {
   public SecurityManager securityManager() {
     DefaultSecurityManager securityManager = new DefaultWebSecurityManager();//web项目需要DefaultWebSecurityManager
     securityManager.setRealm(myRealm());
+    securityManager.setSessionManager(sessionManager());
     return securityManager;
   }
 
@@ -76,6 +80,17 @@ public class ShiroConfig {
     authorizationAttributeSourceAdvisor.setSecurityManager(securityManager);
     return authorizationAttributeSourceAdvisor;
   }
-
   //注解方式开启权限认证 end
+
+  @Bean
+  public SessionManager sessionManager() {
+    CustomSessionManager sessionManager = new CustomSessionManager();
+    sessionManager.setSessionDAO(sessionDao());
+    return sessionManager;
+  }
+
+  @Bean
+  public SessionDao sessionDao() {
+    return new SessionDao();
+  }
 }
