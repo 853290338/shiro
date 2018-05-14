@@ -2,6 +2,7 @@ package com.shiro.shiroweb.controller;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.subject.Subject;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,8 +36,21 @@ public class LoginController {
     return "success";
   }
 
+
   @RequestMapping("index")
   public ModelAndView inde() {
     return new ModelAndView("index");
+  }
+
+  @RequiresRoles("admin")
+  @RequestMapping("test")
+  public String test() {
+    return "test";
+  }
+
+  @RequiresRoles("admin1")
+  @RequestMapping("test1")
+  public String test1() {
+    return "test1";
   }
 }
