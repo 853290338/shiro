@@ -41,7 +41,7 @@ public class ShiroConfig {
 
   @Bean
   public SecurityManager securityManager() {
-    DefaultSecurityManager securityManager = new DefaultWebSecurityManager();
+    DefaultSecurityManager securityManager = new DefaultWebSecurityManager();//web项目需要DefaultWebSecurityManager
     securityManager.setRealm(myRealm());
     return securityManager;
   }
